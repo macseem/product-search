@@ -1,0 +1,30 @@
+{
+  "name": "macseem/project-search",
+  "authors": [
+    {
+      "name": "Maksym Dudkin",
+      "email": "lugamax@gmail.com"
+    }
+  ],
+  "license": "GPL-3.0+",
+  "require": {
+
+  },
+  "require-dev": {
+    "crysalead/kahlan": "^2.5.2"
+  },
+  "autoload": {
+    "psr-4": {
+      "Macseem\\Search\\": "./src"
+    }
+  },
+  "autoload-dev":{
+    "psr-4": {
+      "Macseem\\Search\\": "./spec"
+    }
+  },
+
+  "config": {
+    "bin-dir": "bin"
+  }
+}
