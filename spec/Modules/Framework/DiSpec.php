@@ -7,21 +7,21 @@
  */
 
 use Kahlan\Plugin\Stub;
-use Macseem\Search\Modules\Framework\Di;
+use Macseem\Search\Modules\Framework\BaseDi;
 use Macseem\Search\Modules\Framework\Exceptions\ServiceNotFoundException;
 
-describe(Di::class, function () {
+describe(BaseDi::class, function () {
 
     it('exists', function () {
-        expect(class_exists('Macseem\\Search\\Modules\\Framework\\Di'))->toBeTruthy();
+        expect(class_exists('Macseem\\Search\\Modules\\Framework\\BaseDi'))->toBeTruthy();
     });
 
     context('Methods', function () {
 
         describe('::getInstance()', function () {
             it('should get 2 times the same object', function () {
-                $di1 = Di::getInstance();
-                $di2 = Di::getInstance();
+                $di1 = BaseDi::getInstance();
+                $di2 = BaseDi::getInstance();
                 expect(spl_object_hash($di1))->toBe(spl_object_hash($di2));
             });
         });
@@ -31,7 +31,7 @@ describe(Di::class, function () {
                 $this->name = uniqid();
             });
             given('di', function () {
-                return Di::getInstance();
+                return BaseDi::getInstance();
             });
             given('result', function () {
                 return 1;

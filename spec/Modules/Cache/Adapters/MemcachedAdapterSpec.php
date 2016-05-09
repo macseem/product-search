@@ -6,6 +6,7 @@
  * Time: 4:21 PM
  */
 use Macseem\Search\Modules\Cache\Adapters\MemcachedAdapter;
+use Macseem\Search\Modules\Cache\Exceptions\NotInCacheException;
 
 describe(MemcachedAdapter::class, function () {
 
@@ -40,11 +41,18 @@ describe(MemcachedAdapter::class, function () {
             return new MemcachedAdapter($this->config);
         });
         given('key', function () {
-            return 'key';
+            return uniqid();
         });
         given('data', function () {
             return 'data';
         });
+
+        it('should throw an Exception on empty data', function () {
+            expect(function () {
+                $this->adapter->get($this->key);
+            })->toThrow(new NotInCacheException("", 500));
+        });
+
         it('should set data and get it then', function () {
             $this->adapter->set($this->key, $this->data);
             expect($this->adapter->get($this->key))->toBe($this->data);

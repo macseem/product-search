@@ -1,73 +1,40 @@
 <?php
 namespace Macseem\Search\Modules\Framework;
-use Macseem\Search\Modules\Framework\Exceptions\ServiceNotFoundException;
-use Macseem\Search\Modules\Framework\Interfaces\Di as DiInterface;
 
 /**
  * Class Di
  * @package Macseem\Search\Modules\Framework
+ * @method static Di getInstance
  */
-class Di implements DiInterface
+class Di extends BaseDi
 {
-    /**
-     * @var
-     */
-    private static $instance;
+    private static $sharedServices = [];
+    private static $cachedServices = [];
 
-    /**
-     * @var array
-     */
-    private static $services = [];
-
-    /**
-     * Di constructor.
-     */
-    private function __construct()
+    public function getShared($name)
     {
-        
-    }
-
-    /**
-     * @return Di
-     */
-    public static function getInstance()
-    {
-        if(empty(self::$instance)){
-            self::$instance = new self;
+        if(empty(self::$cachedServices[$name])) {
+            self::$cachedServices[$name] = parent::get($name);
         }
-        return self::$instance;
+        return self::$cachedServices[$name];
     }
-
-
-    /**
-     * @param string $name
-     * @return mixed
-     * @throws ServiceNotFoundException
-     */
+    
     public function get($name)
     {
-        if(isset(self::$services[$name])){
-            $callable = self::$services[$name];
-            return $callable();
+        if(in_array($name, self::$sharedServices)){
+            return $this->getShared($name);
         }
-        throw new ServiceNotFoundException("Srvice $name not found in Di", 500);
+        return parent::get($name);
     }
 
-    /**
-     * @param string $name
-     * @param callable $service
-     * @return mixed
-     */
-    public function set($name, $service)
+    public function setShared($name, $service)
     {
-        return self::$services[$name] = $service;
+        self::$sharedServices[] = $name;
+        return self::set($name, $service);
     }
 
-    /**
-     * @param $name
-     */
     public function remove($name)
     {
-        unset(self::$services[$name]);
+        unset(self::$sharedServices[array_search($name, self::$sharedServices[])]);
     }
 }

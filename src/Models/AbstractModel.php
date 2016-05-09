@@ -1,9 +1,9 @@
 <?php
 namespace Macseem\Search\Models;
 use Macseem\Search\Models\Interfaces\getPk;
-use Macseem\Search\Modules\Framework\Di;
+use Macseem\Search\Modules\Framework\BaseDi;
 use Macseem\Search\Modules\Framework\Exceptions\ServiceNotFoundException;
-use Macseem\Search\Modules\Search\Searcher;
+use Macseem\Search\Modules\ProductSearch\Searcher;
 
 /**
  * Class AbstractModel
@@ -18,7 +18,7 @@ abstract class AbstractModel implements getPk
      */
     protected static function getSearcher()
     {
-        return Di::getInstance()->get('searcher');
+        return BaseDi::getInstance()->get('searcher');
     }
 
     /**

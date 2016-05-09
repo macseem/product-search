@@ -4,7 +4,7 @@ use Kahlan\Plugin\Stub;
 use Macseem\Search\Models\Product;
 use Macseem\Search\Modules\Cache\Cacher;
 use Macseem\Search\Modules\Cache\Exceptions\NotInCacheException;
-use Macseem\Search\Modules\Framework\Di;
+use Macseem\Search\Modules\Framework\BaseDi;
 use Macseem\Search\Modules\ProductSearch\Searcher;
 
 describe(Product::class, function () {
@@ -13,17 +13,17 @@ describe(Product::class, function () {
         before(function () {
             $this->cacher = Stub::create(['extends' => Cacher::class, 'methods' => ['__construct']]);
             $cacher = $this->cacher;
-            Di::getInstance()->set('cacher', function () use ($cacher) {
+            BaseDi::getInstance()->set('cacher', function () use ($cacher) {
                 return $cacher;
             });
             $this->searcher = Stub::create(['extends' => Searcher::class, 'methods' => ['__construct']]);
             $searcher = $this->searcher;
-            Di::getInstance()->set('searcher', function () use ($searcher) {
+            BaseDi::getInstance()->set('searcher', function () use ($searcher) {
                 return $searcher;
             });
         });
         after(function () {
-            Di::getInstance()->remove('cacher');
+            BaseDi::getInstance()->remove('cacher');
         });
 
         given('id', function () {

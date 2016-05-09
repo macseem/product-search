@@ -18,7 +18,11 @@ class MemcachedAdapter extends AbstractAdapter implements Adapter
      */
     public function get($key)
     {
-        return $this->getConnection()->get($key);
+        $result = $this->getConnection()->get($key);
+        if($result === false) {
+            throw new NotInCacheException("Not in cache", 500);
+        }
+        return $result;
     }
 
     /**
