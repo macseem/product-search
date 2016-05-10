@@ -27,12 +27,20 @@ $di->setShared('config', function () use ($config) {
     return $config;
 });
 
+$di->setShared('emitter', function() {
+    return new \League\Event\Emitter();
+});
+
 $di->setShared('cacher', function () use ($config) {
     return new Cacher(
         $config['cacher']['type'],
         $config[$config['cacher']['type']],
         SerializerFactory::getInstance($config['cacher']['serializer'])
     );
+});
+
+$di->setShared('gs', function () use ($di) {
+    return new \Macseem\Search\Modules\Counter\GS($di->get('cacher'));
 });
 
 $di->setShared('searcher', function () use ($config) {

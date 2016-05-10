@@ -50,7 +50,7 @@ class BaseDi implements DiInterface
             $callable = self::$services[$name];
             return $callable();
         }
-        throw new ServiceNotFoundException("Srvice $name not found in Di", 500);
+        throw new ServiceNotFoundException("Service $name not found in Di", 500);
     }
 
     /**

@@ -4,7 +4,7 @@ use Kahlan\Plugin\Stub;
 use Macseem\Search\Models\Product;
 use Macseem\Search\Modules\Cache\Cacher;
 use Macseem\Search\Modules\Cache\Exceptions\NotInCacheException;
-use Macseem\Search\Modules\Framework\BaseDi;
+use Macseem\Search\Modules\Framework\Di;
 use Macseem\Search\Modules\ProductSearch\Searcher;
 
 describe(Product::class, function () {
@@ -13,17 +13,20 @@ describe(Product::class, function () {
         before(function () {
             $this->cacher = Stub::create(['extends' => Cacher::class, 'methods' => ['__construct']]);
             $cacher = $this->cacher;
-            BaseDi::getInstance()->set('cacher', function () use ($cacher) {
+            Di::getInstance()->setShared('cacher', function () use ($cacher) {
                 return $cacher;
             });
             $this->searcher = Stub::create(['extends' => Searcher::class, 'methods' => ['__construct']]);
             $searcher = $this->searcher;
-            BaseDi::getInstance()->set('searcher', function () use ($searcher) {
+            Di::getInstance()->setShared('searcher', function () use ($searcher) {
                 return $searcher;
+            });
+            Di::getInstance()->setShared('emitter', function () {
+                return new \League\Event\Emitter();
             });
         });
         after(function () {
-            BaseDi::getInstance()->remove('cacher');
+            Di::getInstance()->remove('cacher');
         });
 
         given('id', function () {
@@ -42,10 +45,16 @@ describe(Product::class, function () {
             return Product::class . 'id=' . $this->id;
         });
 
+        given('counterCacheKey', function () {
+            return "counter." . Product::class . ".{$this->id}";
+        });
+
         context('cached', function () {
 
             beforeEach(function () {
-                Stub::on($this->cacher)->method('get')->andReturn($this->data);
+                Stub::on($this->cacher)->method('get')->with($this->counterCacheKey)->andReturn(1);
+                Stub::on($this->cacher)->method('set')->with($this->counterCacheKey)->andReturn(1);
+                Stub::on($this->cacher)->method('get')->with($this->cacheKey)->andReturn($this->data);
             });
 
             it('gets cached model and returns it', function () {
@@ -60,6 +69,7 @@ describe(Product::class, function () {
                     throw new NotInCacheException;
                 });
                 Stub::on($this->cacher)->method('set')->with($this->cacheKey, $this->data)->andReturn(true);
+                Stub::on($this->cacher)->method('set')->with($this->counterCacheKey)->andReturn(1);
                 Stub::on($this->searcher)->method('findByPk')->andReturn($this->data);
             });
 

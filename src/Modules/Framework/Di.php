@@ -35,6 +35,13 @@ class Di extends BaseDi
 
     public function remove($name)
     {
-        unset(self::$sharedServices[array_search($name, self::$sharedServices[])]);
+        $key = array_search($name, self::$sharedServices);
+        if(!empty(self::$sharedServices[$key])){
+            unset(self::$sharedServices[$key]);
+        }
+        if(!empty(self::$cachedServices[$key])) {
+            unset(self::$cachedServices[$key]);
+        }
+        parent::remove($name);
     }
 }

@@ -1,14 +1,18 @@
 <?php
 namespace Macseem\Search\Models;
 
+use League\Event\Event;
 use Macseem\Search\Modules\Cache\Cacher;
 use Macseem\Search\Modules\Cache\Exceptions\NotInCacheException;
+use Macseem\Search\Modules\Counter\GS;
+use Macseem\Search\Modules\Counter\Manipulator;
 use Macseem\Search\Modules\Framework\Di;
 use Macseem\Search\Modules\Framework\Exceptions\ServiceNotFoundException;
 
 /**
  * Class AbstractCacheableModel
  * @package Macseem\Search\Models
+ * @method static findByPk($value)
  */
 abstract class AbstractCacheableModel extends AbstractModel
 {
@@ -17,7 +21,7 @@ abstract class AbstractCacheableModel extends AbstractModel
      * @return Cacher
      * @throws ServiceNotFoundException
      */
-    static private function getCacher()
+    private static function getCacher()
     {
         return Di::getInstance()->get('cacher');
     }
@@ -42,15 +46,32 @@ abstract class AbstractCacheableModel extends AbstractModel
         return self::getCacher()->set(self::generateKey(static::getPk(), $model[static::getPk()]), $model);
     }
 
-    static protected function findByPk($value)
+    static protected function _findByPk($value)
     {
         try {
             return self::findInCacheByPk($value);
         } catch (NotInCacheException $e) {
-            $model = parent::findByPk($value);
+            $model = parent::_findByPk($value);
             self::cache($model);
             return $model;
         }
+    }
+
+
+    protected static function oneTimeListeners()
+    {
+        $cacher = self::getCacher();
+        return [
+            [
+                'event' => static::class . '.findByPk',
+                'listener' => function (Event $event, $param) use ($cacher) {
+                    $id = $param[0];
+                    $gs = new GS($cacher);
+                    $manipulator = new Manipulator($cacher, $gs);
+                    $manipulator->increment(static::class, $id);
+                }
+            ]
+        ];
     }
 
 

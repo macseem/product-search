@@ -1,6 +1,8 @@
 <?php
 namespace Macseem\Search\Controllers;
 use Macseem\Search\Models\Product;
+use Macseem\Search\Modules\Counter\GS;
+use Macseem\Search\Modules\Framework\Di;
 
 /**
  * Class ProductController
@@ -13,6 +15,8 @@ class ProductController extends AbstractController
      */
     public function detail($id)
     {
-        return $this->getFormatter($this->getConfig()->formatter)->format(Product::findById($id));
+        $gs = Di::getInstance()->getShared('gs');
+        $result = Product::findById($id) + [ 'requests' => $gs->get(Product::class, $id) ];
+        return $this->getFormatter($this->getConfig()->formatter)->format($result);
     }
 }
